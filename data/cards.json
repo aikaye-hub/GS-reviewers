@@ -1,0 +1,5 @@
+[
+  {"id": 16, "cat": "Appendicitis", "q": "An Alvarado score of 8 would suggest:", "source": "Alvarado 1986", "correct": "High probability of appendicitis — surgical exploration indicated", "choices": ["High probability of appendicitis — surgical exploration indicated", "Low probability; conservative management", "Borderline; further imaging needed"]},
+  {"id": 17, "cat": "Appendicitis", "q": "Pain in the RLQ elicited by passive extension of the right hip — with the patient lying on their left side — is called:", "source": "PSGS Review 2026", "correct": "Psoas sign", "choices": ["Psoas sign", "Obturator sign", "Rovsing's sign"]},
+  {"id": 1, "cat": "Hernia", "q": "What are the three borders of Hesselbach's triangle?", "source": "PSGS Review 2026", "correct": "Rectus sheath (medial), inguinal ligament (inferior), inferior epigastric vessels (lateral)", "choices": ["Rectus sheath (medial), inguinal ligament (inferior), inferior epigastric vessels (lateral)", "Medial umbilical ligament, lateral umbilical ligament, inguinal ligament", "Spermatic cord, vas deferens, testicular vessels"]}
+]
