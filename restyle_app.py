@@ -1,12 +1,21 @@
-import importlib.util, sys, json
+import importlib.util, sys, json, os
 
-# Load CARDS + REF from the existing generator
-spec = importlib.util.spec_from_file_location("gen",
-    "/sessions/jolly-sweet-galileo/mnt/outputs/generate_app.py")
-mod = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(mod)
-CARDS = mod.CARDS
-REF   = mod.REF
+# Load CARDS + REF from the existing generator with error handling
+base_dir = os.path.dirname(os.path.abspath(__file__))
+gen_path = os.path.join(base_dir, "generate_app.py")
+
+try:
+    spec = importlib.util.spec_from_file_location("gen", gen_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Could not load spec from {gen_path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    CARDS = mod.CARDS
+    REF   = mod.REF
+    print(f"✓ Loaded {len(CARDS)} cards and {len(REF)} reference topics")
+except Exception as e:
+    print(f"✗ Error loading generate_app.py: {e}", file=sys.stderr)
+    sys.exit(1)
 
 HTML = r'''<!DOCTYPE html>
 <html lang="en">
@@ -323,6 +332,16 @@ table.rt tr:hover td{background:rgba(255,255,255,.025);}
 .tp-bar-fill{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);
   box-shadow:0 0 6px rgba(74,158,255,.4);}
 .pad{height:28px;}
+
+/* ─── FAVORITES CARD ─────────────────────────────────── */
+.fav-review-card{
+  margin-bottom:18px;
+  background:var(--g1);
+  backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border-radius:var(--rad);
+  padding:16px;
+  border:1px solid var(--gb);
+}
 
 /* ─── LIGHT MODE ─────────────────────────────────────── */
 html.light{
@@ -777,10 +796,10 @@ function buildFav(){
     </div>`;
     return;
   }
-  area.innerHTML=`<div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--sub);margin-bottom:12px;">${favCards.length} Saved Question${favCards.length!==1?"s":""}</div>`
-    +favCards.map((card,idx)=>{
+  area.innerHTML=`<div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--sub);margin-bottom:12px;">${favCards.length} Saved Question${favCards.length!==1?"s":""}</div>` +
+    favCards.map((card,idx)=>{
       const catColor=getCatColor(card.cat);
-      return `<div class="fav-review-card" style="margin-bottom:18px;background:var(--card-bg);border-radius:16px;padding:16px;border:1px solid var(--border);">
+      return `<div class="fav-review-card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <span style="font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:20px;background:${catColor}22;color:${catColor};">${esc(card.cat)}</span>
@@ -788,10 +807,10 @@ function buildFav(){
           </div>
           <button onclick="toggleFav(${card.id});buildFav();" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--acc);padding:0;line-height:1;">⭐</button>
         </div>
-        <div style="font-size:.88rem;font-weight:600;color:var(--txt);line-height:1.5;margin-bottom:12px;">${esc(card.q)}</div>
-        <div style="background:rgba(74,222,128,.12);border-left:3px solid var(--grn);border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:10px;">
+        <div style="font-size:.88rem;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:12px;">${esc(card.q)}</div>
+        <div style="background:rgba(0,212,124,.12);border-left:3px solid var(--grn);border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:10px;">
           <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--grn);margin-bottom:4px;">✓ Correct Answer</div>
-          <div style="font-size:.88rem;color:var(--txt);font-weight:500;">${esc(card.correct)}</div>
+          <div style="font-size:.88rem;color:var(--text);font-weight:500;">${esc(card.choices[0] || "N/A")}</div>
         </div>
         <div style="font-size:.82rem;color:var(--sub);line-height:1.55;">${esc(card.explanation)}</div>
         ${card.source?`<div class="expl-source" style="margin-top:8px;">📚 Source: ${esc(card.source)}</div>`:""}
@@ -825,14 +844,22 @@ if(hsub) hsub.innerHTML=`Board Prep for General Surgery Residents &nbsp;·&nbsp;
 </body>
 </html>'''
 
-cards_js = json.dumps(CARDS, ensure_ascii=False)
-ref_js   = json.dumps(REF,   ensure_ascii=False)
-output   = HTML.replace("CARDS_DATA", cards_js).replace("REF_DATA", ref_js)
+# Output with configurable path
+output_dir = os.getenv("OUTPUT_DIR", os.path.expanduser("~/Desktop"))
+out = os.path.join(output_dir, "PBS_Board_Review_App.html")
 
-out = "/sessions/jolly-sweet-galileo/mnt/com~apple~CloudDocs/PBS_Board_Review_App.html"
-with open(out, "w", encoding="utf-8") as f:
-    f.write(output)
-
-size_kb = len(output.encode("utf-8")) / 1024
-print(f"✓ Written: {out}")
-print(f"  File size: {size_kb:.1f} KB")
+try:
+    os.makedirs(output_dir, exist_ok=True)
+    cards_js = json.dumps(CARDS, ensure_ascii=False)
+    ref_js   = json.dumps(REF,   ensure_ascii=False)
+    output   = HTML.replace("CARDS_DATA", cards_js).replace("REF_DATA", ref_js)
+    
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(output)
+    
+    size_kb = len(output.encode("utf-8")) / 1024
+    print(f"✓ Written: {out}")
+    print(f"  File size: {size_kb:.1f} KB")
+except IOError as e:
+    print(f"✗ Write failed: {e}", file=sys.stderr)
+    sys.exit(1)
