@@ -1,0 +1,49 @@
+[
+  {
+    "topic": "Hernia",
+    "color": "#1A3C6E",
+    "sections": [
+      {
+        "title": "Hiatal Hernia Types",
+        "table": {
+          "headers": ["Type", "Description", "Surgery?"],
+          "rows": [
+            ["I — Sliding", "GEJ slides above diaphragm (95%)", "Symptomatic only"],
+            ["II — Paraesophageal", "GEJ normal, fundus herniates", "Yes — volvulus risk"],
+            ["III — Mixed", "GEJ + fundus both herniate", "Yes"],
+            ["IV — Giant", "Other organs (colon, spleen)", "Urgent if symptoms"]
+          ]
+        }
+      },
+      {
+        "title": "Inguinal Hernia Repair Options",
+        "table": {
+          "headers": ["Repair", "Type", "Key Point"],
+          "rows": [
+            ["Lichtenstein", "Open mesh", "Gold standard, tension-free"],
+            ["TEP", "Laparoscopic", "Extraperitoneal — no bowel risk"],
+            ["TAPP", "Laparoscopic", "Transabdominal — bilateral easier"],
+            ["McVay", "Open", "Only one that covers femoral space"]
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "topic": "Appendicitis",
+    "color": "#7B1FA2",
+    "sections": [
+      {
+        "title": "Scoring Systems",
+        "table": {
+          "headers": ["Score", "Components", "Cut-off"],
+          "rows": [
+            ["Alvarado (MANTRELS)", "Migration, Anorexia, N/V, Tenderness RLQ, Rebound, Temp, WBC, Shift", "≥7 = high probability"],
+            ["Pediatric Appendicitis Score (PAS)", "8 items including jumping/cough", "≥6 = likely appy"],
+            ["AIR Score", "7 items including CRP", "1-4 low, 5-8 medium, 9-12 high"]
+          ]
+        }
+      }
+    ]
+  }
+]
